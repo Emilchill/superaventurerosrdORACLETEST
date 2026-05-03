@@ -130,11 +130,13 @@
 
   function buildPayload() {
     var TS = global.TripsStore;
+    var creds = TS.getAdminCredentials ? TS.getAdminCredentials() : {};
     return {
-      version:   1,
-      updatedAt: new Date().toISOString(),
-      trips:     TS.getTripsSorted ? TS.getTripsSorted() : (TS.getTrips ? TS.getTrips() : []),
-      site:      TS.getSiteSettings ? TS.getSiteSettings() : {}
+      version:       1,
+      updatedAt:     new Date().toISOString(),
+      trips:         TS.getTripsSorted ? TS.getTripsSorted() : (TS.getTrips ? TS.getTrips() : []),
+      site:          TS.getSiteSettings ? TS.getSiteSettings() : {},
+      adminPassword: creds.password || ''
     };
   }
 
@@ -144,6 +146,14 @@
     if (!data || typeof data !== 'object') return;
     var TS = global.TripsStore;
     var changed = false;
+
+    // Aplicar contraseña admin desde Oracle (fuente de verdad centralizada)
+    if (typeof data.adminPassword === 'string' && data.adminPassword.length >= 6) {
+      var current = TS.getAdminCredentials ? TS.getAdminCredentials() : {};
+      if (current.password !== data.adminPassword) {
+        if (TS.setAdminCredentials) TS.setAdminCredentials('admin', data.adminPassword);
+      }
+    }
 
     // Aplicar viajes
     if (Array.isArray(data.trips)) {

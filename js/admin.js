@@ -353,7 +353,7 @@
         });
 
         /**
-         * Borra de Firebase Storage las imágenes que estaban en la salida
+         * Borra de Oracle Storage las imágenes que estaban en la salida
          * antes de editar pero que ya no aparecen en el nuevo set.
          */
         function purgeOrphanedImages(finalUrls) {
@@ -488,7 +488,11 @@
     }
   }
 
-  /** Pantalla de primer acceso: pedir contraseña nueva antes de entrar */
+  /**
+   * Primer acceso: Oracle no tiene contraseña.
+   * Solo el PRIMER dispositivo que llegue podrá crearla.
+   * Se guarda en catalog.json (Oracle) → válida para TODOS los dispositivos.
+   */
   function showSetup() {
     var screen = $('login-screen');
     if (!screen) return;
@@ -497,7 +501,7 @@
       'border-radius:1.2rem;padding:2rem 2rem 1.8rem;display:flex;flex-direction:column;gap:1rem;">',
       '<h2 style="margin:0;font-size:1.2rem;font-weight:700;color:#F5B800;">⚙️ Primer acceso</h2>',
       '<p style="margin:0;font-size:.85rem;color:rgba(255,255,255,.65);line-height:1.5;">',
-      'Crea la contraseña de administrador. Se guardará solo en este navegador.</p>',
+      'Crea la contraseña de administrador. Se guardará en la nube y funcionará en todos los dispositivos.</p>',
       '<input id="su-pass"  type="password" placeholder="Nueva contraseña (mín. 6 caracteres)"',
       ' style="padding:.65rem .9rem;border-radius:.6rem;border:1px solid rgba(255,255,255,.2);',
       'background:rgba(255,255,255,.07);color:#fff;font-size:.95rem;outline:none;">',
@@ -516,23 +520,56 @@
       var errEl = $('su-err');
       if (p1.length < 6) { if (errEl) { errEl.textContent = 'Mínimo 6 caracteres.'; errEl.style.display = 'block'; } return; }
       if (p1 !== p2)     { if (errEl) { errEl.textContent = 'Las contraseñas no coinciden.'; errEl.style.display = 'block'; } return; }
+      // 1. Guardar localmente
       TS.setAdminCredentials('admin', p1);
       setLoggedIn();
-      TripsFirebase.init().then(function (ok) { window.__SA_FIREBASE_ACTIVE__ = !!ok; startApp(); });
+      // 2. Iniciar Oracle y forzar push inmediato con la nueva contraseña
+      TripsFirebase.init().then(function (ok) {
+        window.__SA_FIREBASE_ACTIVE__ = !!ok;
+        if (window.OracleSync) OracleSync.pushSite();
+        startApp();
+      });
     }
     if ($('su-btn'))  $('su-btn').addEventListener('click', doSetup);
     if ($('su-pass2')) $('su-pass2').addEventListener('keydown', function (e) { if (e.key === 'Enter') doSetup(); });
   }
 
   function bootstrap() {
+    // Sesión activa: entrar directo
     if (isLoggedIn()) {
       $('login-screen').style.display = 'none';
-      TripsFirebase.init().then(function (ok) { window.__SA_FIREBASE_ACTIVE__ = !!ok; startApp(); }); return;
+      TripsFirebase.init().then(function (ok) { window.__SA_FIREBASE_ACTIVE__ = !!ok; startApp(); });
+      return;
     }
-    // Primera vez: no hay contraseña guardada en localStorage
-    if (!TS.hasAdminPassword()) { showSetup(); return; }
-    if ($('btn-login')) $('btn-login').addEventListener('click', tryLogin);
-    if ($('l-pass'))    $('l-pass').addEventListener('keydown', function (e) { if (e.key === 'Enter') tryLogin(); });
+
+    // Mostrar "verificando…" mientras cargamos Oracle
+    var screen = $('login-screen');
+    if (screen) {
+      var chk = document.createElement('p');
+      chk.id = 'checking-msg';
+      chk.style.cssText = 'color:rgba(255,255,255,.4);font-size:.8rem;text-align:center;margin-top:1.2rem;';
+      chk.textContent = '🔄 Verificando credenciales en la nube…';
+      screen.appendChild(chk);
+    }
+
+    // Cargar catalog.json desde Oracle para obtener la contraseña centralizada
+    OracleSync.init().then(function () {
+      var el = document.getElementById('checking-msg');
+      if (el) el.remove();
+
+      var pass = TS.getAdminCredentials().password;
+      var hasCloudPass = typeof pass === 'string' && pass.length >= 6;
+
+      if (!hasCloudPass) {
+        // Nadie ha configurado contraseña → primer dispositivo ever
+        showSetup();
+        return;
+      }
+
+      // Ya hay contraseña en Oracle → mostrar login normal
+      if ($('btn-login')) $('btn-login').addEventListener('click', tryLogin);
+      if ($('l-pass'))    $('l-pass').addEventListener('keydown', function (e) { if (e.key === 'Enter') tryLogin(); });
+    });
   }
 
   window.AdminApp = { renderList: renderList, bootstrap: bootstrap };
