@@ -60,16 +60,83 @@
         letter-spacing: 0.1em;
         text-transform: uppercase;
       }
+      .loader-fact {
+        max-width: 320px;
+        text-align: center;
+        color: rgba(255,255,255,0.85);
+        font-family: sans-serif;
+        font-size: 0.92rem;
+        line-height: 1.5;
+        padding: 0 20px;
+        animation: fact-fade-in 0.6s ease;
+      }
+      .loader-fact-label {
+        font-size: 0.7rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: #00D9FF;
+        margin-bottom: 6px;
+        font-weight: 600;
+      }
+      @keyframes fact-fade-in {
+        from { opacity: 0; transform: translateY(8px); }
+        to   { opacity: 1; transform: translateY(0); }
+      }
       @keyframes loader-spin-slow {
         from { transform: rotate(0deg); }
         to   { transform: rotate(360deg); }
       }
     </style>
+    <script>
+      (function() {
+        var facts = [
+          "🌴 República Dominicana tiene más de 1,600 km de costas.",
+          "🏔️ El Pico Duarte es la montaña más alta del Caribe, con 3,098 metros.",
+          "🎵 El merengue fue declarado Patrimonio Cultural Inmaterial por la UNESCO en 2016.",
+          "🌊 La Bahía de Samaná es una de las mejores del mundo para ver ballenas jorobadas.",
+          "🐊 El lago Enriquillo es el único lago de agua salada del Caribe con cocodrilos americanos.",
+          "🏖️ Punta Cana recibe más de 8 millones de turistas al año.",
+          "🦅 El Guaraguao (gavilán de cola roja) es el ave nacional de la RD.",
+          "🌿 El país produce el 60% del cacao orgánico del mundo.",
+          "🗺️ Hispaniola es la segunda isla más grande del Caribe.",
+          "🏙️ Santo Domingo fue la primera ciudad europea fundada en América, en 1496.",
+          "🎭 La Zona Colonial de Santo Domingo es Patrimonio de la Humanidad desde 1990.",
+          "🎶 La bachata, uno de los géneros más escuchados en el mundo, es 100% dominicana.",
+          "🌡️ El clima promedio del país es de 25°C todo el año. ¡Eterno verano!",
+          "🦎 El iguana rinoceronte es una especie única que solo vive en La Española.",
+          "💎 El larimar, la piedra semipreciosa azul cielo, solo se encuentra en RD.",
+          "☕ El café dominicano fue nombrado uno de los mejores del mundo por expertos en 2023.",
+          "🌊 La playa Montaña Redonda tiene el columpio más famoso sobre el mar en el Caribe.",
+          "🎉 El Carnaval dominicano se celebra todo el mes de febrero con cientos de máscaras.",
+          "🐢 En las playas de Pedernales anidan tortugas marinas en peligro de extinción.",
+          "🌿 Los Haitises es uno de los bosques tropicales húmedos mejor conservados del Caribe.",
+          "🗿 Los taínos dejaron miles de petroglifos en cuevas de todo el país.",
+          "🏄 Cabarete es reconocida como capital mundial del kite surf y el windsurf.",
+          "🌋 El país tiene playas de arena blanca, rosada, negra ¡y hasta dorada!",
+          "📚 RD tiene una tasa de alfabetización por encima del 93%.",
+          "🤝 Los dominicanos tienen fama de ser uno de los pueblos más hospitalarios del mundo.",
+          "🐬 En el Banco de la Plata se concentra la mayor colonia de ballenas jorobadas del Atlántico.",
+          "🌍 Hay más dominicanos viviendo en Nueva York que en Santiago de los Caballeros.",
+          "🍹 El ron Barceló y el Brugal nacieron en suelo dominicano.",
+          "🦜 El loro cotorra es uno de los pájaros endémicos más coloridos del país.",
+          "🏔️ Más del 30% del territorio dominicano está protegido como área natural."
+        ];
+        var idx = Math.floor(Math.random() * facts.length);
+        document.addEventListener('DOMContentLoaded', function() {
+          var factEl = document.getElementById('loader-fact-text');
+          if (factEl) factEl.textContent = facts[idx];
+        });
+      })();
+    </script>
 </head>
 <body class="antialiased">
     <div id="page-loader">
       <div class="loader-logo"><img src="img/logo.png" alt="Logo" onerror="this.parentElement.innerHTML='🏔️'"></div>
       <div class="loader-text">Cargando aventuras...</div>
+      <div class="loader-fact">
+        <div class="loader-fact-label">¿Sabías que...?</div>
+        <div id="loader-fact-text"></div>
+      </div>
     </div>
     <script>
       window.addEventListener('load', function() {
