@@ -50,9 +50,7 @@
   }
 
   function priceBlock(t) {
-    if (t.hidePrice) {
-      return '<span class="font-black text-sm">Consultar precio</span>';
-    }
+    if (t.hidePrice) return '';
     var disc = Number(t.discountPercent) || 0;
     var fin  = TS.formatMoney(TS.finalPrice(t));
     var orig = TS.formatMoney(t.price);
@@ -95,7 +93,7 @@
          + slides + '</div>'
          + '<div class="absolute inset-0 bg-gradient-to-t from-[#070d1b] via-[#070d1b]/20 to-transparent pointer-events-none"></div>'
          + arrows
-         + '<div class="absolute top-8 right-8 bg-[#F5B800] text-black px-6 py-2.5 rounded-2xl shadow-xl z-20 pointer-events-none">' + priceBlock(t) + '</div>'
+         + (t.hidePrice ? '' : '<div class="absolute top-8 right-8 bg-[#F5B800] text-black px-6 py-2.5 rounded-2xl shadow-xl z-20 pointer-events-none">' + priceBlock(t) + '</div>')
          + '<div class="absolute bottom-10 left-10 right-10 z-10 pointer-events-none">'
          + '<div class="pointer-events-auto">'
          + '<div class="flex flex-wrap items-center gap-3 text-xs font-bold uppercase tracking-widest mb-4">'
@@ -216,13 +214,16 @@
     modal.querySelector('.sa-title').textContent = trip.title;
     modal.querySelector('.sa-description').textContent = trip.description || '';
 
+    var priceEl = modal.querySelector('.sa-price');
     if (trip.hidePrice) {
-      modal.querySelector('.sa-price').innerHTML = 'Consultar precio';
+      priceEl.innerHTML = '';
+      priceEl.style.display = 'none';
     } else {
+      priceEl.style.display = '';
       var disc = Number(trip.discountPercent)||0;
       var fin  = TS.formatMoney(TS.finalPrice(trip));
       var orig = TS.formatMoney(trip.price);
-      modal.querySelector('.sa-price').innerHTML = disc > 0
+      priceEl.innerHTML = disc > 0
         ? '<span class="line-through text-black/60 text-sm mr-2">RD$ '+escapeHtml(orig)+'</span>RD$ '+escapeHtml(fin)+' <span class="text-xs ml-1 bg-black/20 rounded px-2 py-0.5">-'+escapeHtml(String(disc))+'%</span>'
         : 'RD$ '+escapeHtml(fin);
     }
