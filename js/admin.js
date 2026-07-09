@@ -217,6 +217,7 @@
       dateLabelOverride: String($('f-date-lbl').value || '').trim(),
       price: parseFloat($('f-price').value) || 0,
       discountPercent: parseFloat($('f-disc').value) || 0,
+      hidePrice: !!($('f-hide-price') && $('f-hide-price').checked),
       images: images,
       formUrl: String($('f-form').value || 'https://forms.gle/ejemplo').trim()
     };
@@ -232,6 +233,7 @@
     ['f-title','f-desc','f-loc','f-date-s','f-date-e','f-date-lbl','f-img-url'].forEach(function (id) { if ($(id)) $(id).value = ''; });
     if ($('f-price'))  $('f-price').value  = '';
     if ($('f-disc'))   $('f-disc').value   = '0';
+    if ($('f-hide-price')) $('f-hide-price').checked = false;
     if ($('f-form'))   $('f-form').value   = 'https://forms.gle/ejemplo';
     if ($('form-title')) $('form-title').textContent = 'Nueva salida';
     if ($('btn-save'))   $('btn-save').textContent   = 'Crear salida';
@@ -250,6 +252,7 @@
     $('f-date-lbl').value = t.dateLabelOverride || '';
     $('f-price').value    = t.price != null ? String(t.price) : '';
     $('f-disc').value     = t.discountPercent != null ? String(t.discountPercent) : '0';
+    if ($('f-hide-price')) $('f-hide-price').checked = !!t.hidePrice;
     $('f-img-url').value  = (currentImages.length === 1 && currentImages[0].indexOf('http') === 0) ? currentImages[0] : '';
     $('f-form').value     = t.formUrl || '';
     if ($('form-title')) $('form-title').textContent = 'Editar salida';
@@ -270,10 +273,13 @@
         ? '<img src="' + t.imageUrl + '" style="width:44px;height:44px;border-radius:.55rem;object-fit:cover;flex-shrink:0;" loading="lazy">'
         : '<div style="width:44px;height:44px;border-radius:.55rem;background:#1b2620;flex-shrink:0;"></div>';
       var disc = t.discountPercent > 0 ? ' <span style="color:#4ade80;">(-' + t.discountPercent + '%)</span>' : '';
+      var priceTxt = t.hidePrice
+        ? '<span style="color:#facc15;">Precio oculto</span>'
+        : 'RD$ ' + TS.formatMoney(TS.finalPrice(t)) + disc;
       return '<div class="trip-item" style="display:flex;align-items:center;gap:.75rem;padding:.65rem .75rem;border-radius:.9rem;border:1px solid var(--border);transition:background .15s;">'
            + '<div style="display:flex;gap:.6rem;align-items:center;flex:1;min-width:0;">' + thumb
            + '<div style="flex:1;min-width:0;"><div style="font-weight:700;font-size:.88rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + t.title + '</div>'
-           + '<div style="font-size:.73rem;color:rgba(255,255,255,.4);margin-top:.1rem;">' + (t.location||'') + ' · RD$ ' + TS.formatMoney(TS.finalPrice(t)) + disc + '</div>'
+           + '<div style="font-size:.73rem;color:rgba(255,255,255,.4);margin-top:.1rem;">' + (t.location||'') + ' · ' + priceTxt + '</div>'
            + '</div></div>'
            + '<div style="display:flex;gap:.3rem;flex-shrink:0;">'
            + '<button type="button" data-move="' + t.id + '" data-d="-1" class="btn-icon" title="Subir">↑</button>'

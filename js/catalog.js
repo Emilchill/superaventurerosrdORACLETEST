@@ -50,6 +50,9 @@
   }
 
   function priceBlock(t) {
+    if (t.hidePrice) {
+      return '<span class="font-black text-sm">Consultar precio</span>';
+    }
     var disc = Number(t.discountPercent) || 0;
     var fin  = TS.formatMoney(TS.finalPrice(t));
     var orig = TS.formatMoney(t.price);
@@ -213,12 +216,16 @@
     modal.querySelector('.sa-title').textContent = trip.title;
     modal.querySelector('.sa-description').textContent = trip.description || '';
 
-    var disc = Number(trip.discountPercent)||0;
-    var fin  = TS.formatMoney(TS.finalPrice(trip));
-    var orig = TS.formatMoney(trip.price);
-    modal.querySelector('.sa-price').innerHTML = disc > 0
-      ? '<span class="line-through text-black/60 text-sm mr-2">RD$ '+escapeHtml(orig)+'</span>RD$ '+escapeHtml(fin)+' <span class="text-xs ml-1 bg-black/20 rounded px-2 py-0.5">-'+escapeHtml(String(disc))+'%</span>'
-      : 'RD$ '+escapeHtml(fin);
+    if (trip.hidePrice) {
+      modal.querySelector('.sa-price').innerHTML = 'Consultar precio';
+    } else {
+      var disc = Number(trip.discountPercent)||0;
+      var fin  = TS.formatMoney(TS.finalPrice(trip));
+      var orig = TS.formatMoney(trip.price);
+      modal.querySelector('.sa-price').innerHTML = disc > 0
+        ? '<span class="line-through text-black/60 text-sm mr-2">RD$ '+escapeHtml(orig)+'</span>RD$ '+escapeHtml(fin)+' <span class="text-xs ml-1 bg-black/20 rounded px-2 py-0.5">-'+escapeHtml(String(disc))+'%</span>'
+        : 'RD$ '+escapeHtml(fin);
+    }
 
     modal.querySelector('.sa-form-btn').href = trip.formUrl || '#';
     modal.querySelector('.sa-social').innerHTML = socialButtonsHtml(trip,'lg');

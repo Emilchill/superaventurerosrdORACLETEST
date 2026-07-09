@@ -103,6 +103,7 @@
       dateLabelOverride:String(t.dateLabelOverride || '').trim(),
       price:            Math.round(price * 100) / 100,
       discountPercent:  Math.round(disc  * 10)  / 10,
+      hidePrice:        Boolean(t.hidePrice),
       images:           images,
       imageUrl:         images[0] || '',
       formUrl:          String(t.formUrl      || 'https://forms.gle/ejemplo').trim(),
